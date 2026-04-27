@@ -2,8 +2,6 @@
 
 Obsidian Vault に書いたノートのうち、`publish/` ディレクトリに置いたものだけを [Quartz v4](https://quartz.jzhao.xyz/) で静的サイト化して **GitHub Pages** に公開する仕組みを、すぐ使える形でまとめたテンプレートリポジトリ。
 
-> **使い方**: GitHub の [Use this template](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template) ボタンから自分用のリポジトリを作成して開始してください。
-
 ## このテンプレートが解決する課題
 
 - Obsidian でノートを書いている。一部だけ Web で公開したい
@@ -14,6 +12,29 @@ Obsidian Vault に書いたノートのうち、`publish/` ディレクトリに
 - **普段の編集はそのまま Obsidian で**: 公開したいノートだけを Vault の `publish/` に移動 → このテンプレートから作成したリポジトリコミットして push すれば公開される
 - **`publish/` 配下だけが公開対象**: 残りの私的ノートはローカルにとどまる
 - **GitHub Actions で自動デプロイ**: `main` ブランチへ push → 1〜3 分でサイト更新
+
+## はじめかた（このテンプレートから自分のリポジトリを作る）
+
+このリポジトリは GitHub の **テンプレートリポジトリ** として公開されている。`git clone` ではなく **「Use this template」ボタン** から自分用のリポジトリを作成して開始する。
+
+### 1. テンプレートから自分のリポジトリを作成
+
+1. このリポジトリのページ上部にある **「Use this template」 → 「Create a new repository」** をクリック
+   ([テンプレートからの作成手順 - GitHub Docs](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template))
+2. **Owner** と **Repository name**（例: `my-notes`）を入力して作成
+   - Public / Private はお好みで（GitHub Pages を無料で使うなら Public 推奨）
+3. 作成された自分のリポジトリの URL が `https://github.com/YOUR_NAME/my-notes` の形になる
+
+> CLI 派の場合は `gh repo create YOUR_NAME/my-notes --template ORIGINAL_OWNER/publish-site-template --public --clone` でも同等。
+
+### 2. 自分のリポジトリを clone
+
+```bash
+git clone https://github.com/YOUR_NAME/my-notes.git
+cd my-notes
+```
+
+以降の手順（`.env` / `.publish.config` の作成、プレビュー、push）はすべてこの clone したディレクトリで作業する。
 
 ## 前提環境（ローカルで動作確認するため）
 
@@ -26,16 +47,9 @@ Obsidian Vault に書いたノートのうち、`publish/` ディレクトリに
 
 ## Docker で動かす
 
-ホストに Node などを入れずに動かす最短ルート。
+ホストに Node などを入れずに動かす最短ルート。clone 済みのリポジトリ直下で作業する。
 
-### 1. リポジトリ取得
-
-```bash
-git clone https://github.com/YOUR_NAME/THIS_TEMPLATE_REPO.git my-notes
-cd my-notes
-```
-
-### 2. `.env` を作成
+### 1. `.env` を作成
 
 リポジトリ直下に `.env` ファイルを作成し、自分の Vault `publish/` への絶対パスを書く。`.env` は `.gitignore` 済みなのでコミットされない。
 
@@ -45,7 +59,7 @@ VAULT_PUBLISH_DIR=/home/USER/Documents/your-vault/publish
 
 `.env.example` は設定可能な変数の一覧・説明が書かれた**参考用ファイル**。`USER_ID` / `GROUP_ID` などオプション項目を追加したいときに参照する。コピー必須ではない。
 
-### 3. プレビュー起動
+### 2. プレビュー起動
 
 ```bash
 docker compose up preview          # http://localhost:8080 でプレビュー
@@ -59,15 +73,9 @@ docker compose run --rm shell      # コンテナ内 bash で個別操作
 
 ## ネイティブで動かす
 
-### 1. リポジトリ取得
+clone 済みのリポジトリ直下で作業する。
 
-```bash
-git clone https://github.com/YOUR_NAME/THIS_TEMPLATE_REPO.git my-notes
-cd my-notes
-rm -rf .git && git init
-```
-
-### 2. `.publish.config` を作成
+### 1. `.publish.config` を作成
 
 リポジトリ直下に `.publish.config` ファイルを作成し、自分の Vault `publish/` への絶対パスを書く。`.gitignore` 済み。
 
@@ -77,7 +85,7 @@ vault_publish_dir: /home/USER/Documents/your-vault/publish
 
 `.publish.config.example` は YAML 形式での設定例とキー一覧を載せた**参考用ファイル**。
 
-### 3. プレビュー
+### 2. プレビュー
 
 ```bash
 ./bootstrap.sh                # Quartz を取得
@@ -104,12 +112,12 @@ npx quartz build --serve      # http://localhost:8080 でプレビュー
 
 ### 2. push
 
+「Use this template」で作成したリポジトリは既に `origin` が設定されている。書き換えた内容を commit して push するだけ:
+
 ```bash
 git add .
 git commit -m "initial: my notes site"
-git branch -M main
-git remote add origin git@github.com:YOUR_NAME/my-notes.git
-git push -u origin main
+git push
 ```
 
 リポジトリの **Settings → Pages → Source** を **GitHub Actions** に変更すると、Actions が動き始めて GitHub Pages にデプロイされる。詳細は [documents/SETUP.md](./documents/SETUP.md)。
