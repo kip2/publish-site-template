@@ -169,7 +169,7 @@ Docker の場合:
 
 ```bash
 cd my-notes
-docker compose run --rm shell -c "./sync.sh"
+docker compose run --rm shell bash -c "./sync.sh"
 git add content && git commit -m "update: ..." && git push
 ```
 
