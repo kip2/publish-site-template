@@ -17,6 +17,9 @@ concurrency:
 
 jobs:
   build:
+    # テンプレートリポジトリ自身ではデプロイを動かさない。
+    # 「Use this template」で派生したリポジトリでは is_template が false になるため通常通り動く。
+    if: ${{ !github.event.repository.is_template }}
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -49,6 +52,7 @@ jobs:
           path: public
 
   deploy:
+    if: ${{ !github.event.repository.is_template }}
     needs: build
     environment:
       name: github-pages
